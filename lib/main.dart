@@ -11,111 +11,156 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: TiendaScreen(),
+      home: CarritoScreen(),
     );
   }
 }
 
-class TiendaScreen extends StatelessWidget {
-  const TiendaScreen({super.key});
+class CarritoScreen extends StatelessWidget {
+  const CarritoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    bool isWeb = MediaQuery.of(context).size.width > 600;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
-        toolbarHeight: 100, // Un poco más de altura para acomodar las dos líneas
         centerTitle: true,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Alinea el contenido al inicio (izquierda)
-          children: [
-            // Línea 1: Nombre del negocio a la izquierda
-            const Text(
-              "Steam de Mulato",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 30,
-              ),
-            ),
-            // Línea 2: Contenedor que ocupa todo el ancho para centrar "Tienda"
-            SizedBox(
-              width: double.infinity,
-              child: const Text(
-                "Tienda",
-                textAlign: TextAlign.center, // ESTO centra la palabra
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
+        leading: const Icon(Icons.search),
+        title: const Text(
+          "Carrito",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        // Acciones: El icono pegado a la derecha
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(top: 30, right: 16), // Ajustamos posición vertical
-            child: Icon(
-              Icons.shopping_cart_outlined,
-              size: 28,
-              color: Colors.blue.shade700,
-            ),
-          ),
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(Icons.shopping_cart_outlined),
+          )
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  "https://raw.githubusercontent.com/Mulato-Aaron/imagenes1/refs/heads/main/header.jpg",
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+        child: Center(
+          child: Container(
+            constraints: BoxConstraints(maxWidth: isWeb ? 500 : double.infinity),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                const Text(
+                  "¡Agregado a tu carrito!",
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
                 ),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                "Juegos Destacados",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 20),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      "https://raw.githubusercontent.com/Mulato-Aaron/imagenes1/refs/heads/main/header.jpg",
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  "https://raw.githubusercontent.com/Mulato-Aaron/imagenes1/refs/heads/main/descarga.jpg",
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+
+                const SizedBox(height: 25),
+                const Text(
+                  "Resident Evil 4",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
-              ),
+                const Text(
+                  "Mex \$559.00",
+                  style: TextStyle(fontSize: 18, color: Colors.black54),
+                ),
+
+                const SizedBox(height: 30),
+
+                // BOTONES CON ANIMACIÓN REINSTALADA
+                BotonAnimado(
+                  texto: "Seguir comprando", 
+                  color: Colors.grey.shade300, 
+                  textoColor: Colors.black
+                ),
+                const SizedBox(height: 15),
+                BotonAnimado(
+                  texto: "Ver mi carrito", 
+                  color: Colors.lightBlue.shade200, 
+                  textoColor: Colors.black
+                ),
+                
+                const SizedBox(height: 40),
+              ],
             ),
-            const SizedBox(height: 30),
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
+        // Mantener los labels para que los iconos no desaparezcan en Web
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.local_offer), label: "Ofertas"),
           BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: "Biblioteca"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
         ],
+      ),
+    );
+  }
+}
+
+// Clase separada para manejar la animación del botón
+class BotonAnimado extends StatefulWidget {
+  final String texto;
+  final Color color;
+  final Color textoColor;
+
+  const BotonAnimado({
+    super.key, 
+    required this.texto, 
+    required this.color, 
+    required this.textoColor
+  });
+
+  @override
+  State<BotonAnimado> createState() => _BotonAnimadoState();
+}
+
+class _BotonAnimadoState extends State<BotonAnimado> {
+  double _escala = 1.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click, // Para que el mouse cambie en Web
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _escala = 0.95), // Se encoge
+        onTapUp: (_) => setState(() => _escala = 1.0),   // Vuelve a su tamaño
+        onTapCancel: () => setState(() => _escala = 1.0),
+        child: AnimatedScale(
+          scale: _escala,
+          duration: const Duration(milliseconds: 100),
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.symmetric(vertical: 15),
+            decoration: BoxDecoration(
+              color: widget.color,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              widget.texto,
+              style: TextStyle(
+                color: widget.textoColor, 
+                fontWeight: FontWeight.bold, 
+                fontSize: 16
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
